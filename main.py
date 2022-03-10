@@ -8,3 +8,5 @@ if __name__ == "__main__":
     assert type_str == ipv6_type
 
     print(type_str)
+
+    print(ipstat.get_types())

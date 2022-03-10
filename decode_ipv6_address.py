@@ -8,6 +8,9 @@
 from IPy import IPint
 from dataclasses import dataclass
 
+from mac_address import MacAddress
+
+
 @dataclass
 class IPType():
     ipv6_type = {
@@ -182,6 +185,7 @@ class IPstat(object):
             return True
         else:
             return False   
+    
     IPV6_ADDR_MC_FLAGS_TRANSIENT = 0x10
     IPV6_ADDR_MC_FLAGS_PREFIX    = 0x20
     IPV6_ADDR_MC_FLAGS_UNICAST_BASED = IPV6_ADDR_MC_FLAGS_TRANSIENT | IPV6_ADDR_MC_FLAGS_PREFIX
@@ -242,6 +246,7 @@ class IPstat(object):
             return True
         else:
             return False   
+
     def is_service_port(self, port):
         service_ports_hex=[0x21, 0x22, 0x23, 0x25, 0x49, 0x53, 0x80, 0x110, 0x123, 0x179, 0x220, 0x389, \
 						                 0x443, 0x547, 0x993, 0x995, 0x1194, 0x3306, 0x5060, 0x5061, 0x5432, 0x6446, 0x8080]
@@ -253,6 +258,7 @@ class IPstat(object):
         if port in service_ports_dec:
             return True
         return False
+
     def zero_byte_iid(self):
         zero_count = 0
         for i in range(8,16):
@@ -573,15 +579,21 @@ class IPstat(object):
         ipstat = self.get_types()
         if ipstat["iidtype"] != self.iidmacderived:
             # raise IPv6ParseError("the ipaddress {} is not ieee drived".format(IPint(self.ipv6address.ipv6_address).strFullsize()))
-            return None
+            return MacAddress("xxxx") # force to return None element
+
         iid = self.ipv6address.ipv6_address & 0xffffffffffffffff
         iid ^= 0x0200000000000000
         iid = ( iid >> 16 ) &0xffffff000000 | (iid & 0xffffff)
-        return "{:0>12X}".format(iid)
+        mac_str = "{:0>12X}".format(iid)
+        mac_addr = MacAddress(mac_str)
+        return mac_addr
 
 if __name__ == "__main__":
     ipv6 = "fe80::2aa:ff:fe3f:2a1c"
     mac = "00AA003F2A1C"
-    ipstat = ipstat(ipv6)
+    org = "INTEL CORPORATION"
+    ipstat = IPstat(ipv6)
     mac_address = ipstat.get_mac_address()
-    assert mac == mac_address    
+
+    assert mac == mac_address.get_mac()    
+    assert org == mac_address.get_org()

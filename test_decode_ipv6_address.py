@@ -1,6 +1,7 @@
 import unittest
 
 from decode_ipv6_address import IPstat
+from tqdm import tqdm
 
 class TestStringMethods(unittest.TestCase):
     
@@ -22,10 +23,11 @@ class TestStringMethods(unittest.TestCase):
         self.assertEqual(ipstat_16, self.ipv6_addresses[0][3])
         ipstat_8 = [ipstat.get_int8(i + 1) for i in range(0,16)]
         self.assertEqual(ipstat_8, self.ipv6_addresses[0][4])
-    
+
+    #@unittest.skip("skipping, for save time")
     def test_address_type(self):
         with open("active_ipv6") as f_ip, open("active_ipv6_addr6") as f_type:
-            for ip, ip_type in zip(f_ip, f_type):
+            for ip, ip_type in tqdm(zip(f_ip, f_type)):
                 ip = ip.strip("\n")
                 ip_type = ip_type.strip("\n")
                 ipstat = IPstat(ip)
@@ -35,15 +37,17 @@ class TestStringMethods(unittest.TestCase):
     
     def test_get_mac_address(self):
         test_ipv6 = [
-                        [ "fe80::2aa:ff:fe3f:2a1c", "00AA003F2A1C"],
-                        [ "FE80::24A:DFFF:FE8C:5EC1", "004ADF8C5EC1"],
-                        ["FE80:0:0:0:02e0:4cFF:fe00:321a", "00E04C00321A"],
-                        ["2001:1218:4000:2f0::4a", None],
+                        [ "fe80::2aa:ff:fe3f:2a1c", "00AA003F2A1C", "00AA00", "INTEL CORPORATION"],
+                        [ "FE80::24A:DFFF:FE8C:5EC1", "004ADF8C5EC1", "004ADF",  None],
+                        ["FE80:0:0:0:02e0:4cFF:fe00:321a", "00E04C00321A", "00E04C", "REALTEK SEMICONDUCTOR CORP."],
+                        ["2001:1218:4000:2f0::4a", None, None, None],
+                        ["fe80::76d4:35ff:fe4e:39c8","74D4354E39C8", "74D435",  "GIGA-BYTE TECHNOLOGY CO.,LTD."],
                     ]
-        for ipv6, mac in test_ipv6:
+        for ipv6, mac,code, org in tqdm(test_ipv6):
             ipstat = IPstat(ipv6)
             mac_address = ipstat.get_mac_address()
-            self.assertEqual( mac , mac_address)    
+            self.assertEqual( mac , mac_address.get_mac())
+            self.assertEqual( org , mac_address.get_org())
 
 if __name__ == '__main__':
     unittest.main()
