@@ -6,9 +6,9 @@ addr6 is one of these tools, which can be used to analysis ipv6 addresses.
 
 for example,according to IPv6 addressing strategy, an ipv6 address can be decode into 5 types:`type, subtype, scope, iidtype, iidsubtype`. The defination of these types can be found in addr6's manual(such as https://www.venea.net/man/addr6(1)).
 
-But there is no python lib to parse the IPv6 address. Sothis python script implements the same function as addr6's `decode_ipv6_address()` function.
+But there is no python lib parsing IPv6 addresses. So this python script implements the same function as addr6's `decode_ipv6_address()` function.
 
-Besides, addition features are added, for example:
+Besides, additional features are added, for example:
 
 - when IPv6 address is ieee-drived, mac address and corresponding mac vendor are parsed. 
 
