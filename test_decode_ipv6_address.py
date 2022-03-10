@@ -26,7 +26,10 @@ class TestStringMethods(unittest.TestCase):
 
     #@unittest.skip("skipping, for save time")
     def test_address_type(self):
-        with open("active_ipv6") as f_ip, open("active_ipv6_addr6") as f_type:
+        test_data_dir = "test_data"
+        ipv6_set = "{}/{}".format(test_data_dir, "active_ipv6")
+        type_set = "{}/{}".format(test_data_dir, "active_ipv6_addr6")
+        with open(ipv6_set) as f_ip, open(type_set) as f_type:
             for ip, ip_type in tqdm(zip(f_ip, f_type)):
                 ip = ip.strip("\n")
                 ip_type = ip_type.strip("\n")

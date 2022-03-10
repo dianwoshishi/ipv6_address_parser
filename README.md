@@ -40,7 +40,7 @@ mac_address.py #class MacAddress
 ```
 
 ## how to use it
-example can be found in `main.py`
+example can be found in `exmaple.py`
 ```python
 
 from decode_ipv6_address import IPstat
