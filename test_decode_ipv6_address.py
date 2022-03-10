@@ -16,13 +16,13 @@ class TestStringMethods(unittest.TestCase):
                             ]
         ipstat = IPstat(self.ipv6_addresses[0][0])
         ipstat_64 = [ipstat.get_int64(i + 1) for i in range(0,2)]
-        self.assertEqual(ipstat_64, self.ipv6_addresses[0][1])
+        self.assertListEqual(ipstat_64, self.ipv6_addresses[0][1])
         ipstat_32 = [ipstat.get_int32(i + 1) for i in range(0,4)]
-        self.assertEqual(ipstat_32, self.ipv6_addresses[0][2])
+        self.assertListEqual(ipstat_32, self.ipv6_addresses[0][2])
         ipstat_16 = [ipstat.get_int16(i + 1) for i in range(0,8)]
-        self.assertEqual(ipstat_16, self.ipv6_addresses[0][3])
+        self.assertListEqual(ipstat_16, self.ipv6_addresses[0][3])
         ipstat_8 = [ipstat.get_int8(i + 1) for i in range(0,16)]
-        self.assertEqual(ipstat_8, self.ipv6_addresses[0][4])
+        self.assertListEqual(ipstat_8, self.ipv6_addresses[0][4])
 
     #@unittest.skip("skipping, for save time")
     def test_address_type(self):
