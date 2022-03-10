@@ -32,6 +32,18 @@ class TestStringMethods(unittest.TestCase):
                 type_str = ipstat.get_ip_type()
 
                 self.assertEqual(type_str,ip_type) 
+    
+    def test_get_mac_address(self):
+        test_ipv6 = [
+                        [ "fe80::2aa:ff:fe3f:2a1c", "00AA003F2A1C"],
+                        [ "FE80::24A:DFFF:FE8C:5EC1", "004ADF8C5EC1"],
+                        ["FE80:0:0:0:02e0:4cFF:fe00:321a", "00E04C00321A"],
+                        ["2001:1218:4000:2f0::4a", None],
+                    ]
+        for ipv6, mac in test_ipv6:
+            ipstat = IPstat(ipv6)
+            mac_address = ipstat.get_mac_address()
+            self.assertEqual( mac , mac_address)    
 
 if __name__ == '__main__':
     unittest.main()

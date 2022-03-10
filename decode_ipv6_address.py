@@ -16,11 +16,11 @@ class IPType():
     "IPV6_MULTICAS": ["IPV6_MULTICAS", (1 << 2)],
     "IPV6_UNICAST": ["IPV6_UNICAST", (1 << 3)],
 
-    "UCAST_V4MAPPE": ["UCAST_V4MAPPE", (1 << 1)],
-    "UCAST_V4COMPA": ["UCAST_V4COMPA", (1 << 2)],
-    "UCAST_LINKLOCA": ["UCAST_LINKLOCA", (1 << 3)],
-    "UCAST_SITELOCA": ["UCAST_SITELOCA", (1 << 4)],
-    "UCAST_UNIQUELOCA": ["UCAST_UNIQUELOCA", (1 << 5)],
+    "UCAST_V4MAPPED": ["UCAST_V4MAPPED", (1 << 1)],
+    "UCAST_V4COMPAT": ["UCAST_V4COMPAT", (1 << 2)],
+    "UCAST_LINKLOCAL": ["UCAST_LINKLOCAL", (1 << 3)],
+    "UCAST_SITELOCAL": ["UCAST_SITELOCAL", (1 << 4)],
+    "UCAST_UNIQUELOCAL": ["UCAST_UNIQUELOCAL", (1 << 5)],
     "UCAST_6TO4": ["UCAST_6TO4", (1 << 6)], 
     "UCAST_TEREDO": ["UCAST_TEREDO", (1 << 7)],
     "UCAST_GLOBAL": ["UCAST_GLOBAL", (1 << 8)],
@@ -60,7 +60,7 @@ class IPType():
     "IID_EMBEDDEDIPV4_32": ["IID_EMBEDDEDIPV4_32", (1 << 15)],
     }
 
-class IPv6ParseError:
+class IPv6ParseError(Exception):
     def __init__(self, msg):
         self.msg = msg
     def error_msg(self):
@@ -458,15 +458,15 @@ class IPstat(object):
                 iidtype_str = self.iidlowbyte
             elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_GLOBAL"]:
                 subtype_str = self.ucastglobal
-            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_V4MAPPE"]:
+            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_V4MAPPED"]:
                 subtype_str = self.ucastv4mapped
-            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_V4COMPA"]:
+            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_V4COMPAT"]:
                 subtype_str = self.ucastv4compat
-            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_LINKLOCA"]:
+            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_LINKLOCAL"]:
                 subtype_str = self.ucastlinklocal
-            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_SITELOCA"]:
+            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_SITELOCAL"]:
                 subtype_str = self.ucastsitelocal
-            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_UNIQUELOCA"]:
+            elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_UNIQUELOCAL"]:
                 subtype_str = self.ucastuniquelocal  
             elif ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_6TO4"]:
                 subtype_str = self.ucast6to4
@@ -477,9 +477,9 @@ class IPstat(object):
             if ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_GLOBAL"] or\
                 ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_V4MAPPED"] or\
                 ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_V4COMPAT"] or\
-                ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_LINKLOCA"] or\
-                ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_SITELOCA"] or\
-                ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_UNIQUELOCA"] or\
+                ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_LINKLOCAL"] or\
+                ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_SITELOCAL"] or\
+                ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_UNIQUELOCAL"] or\
                 ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_6TO4"] or\
                 ipstat.ipv6_subtype == IPType.ipv6_type["UCAST_TEREDO"]:
 
@@ -564,3 +564,24 @@ class IPstat(object):
                                         iidsubtype_str)
         return type_str
 
+    def get_types(self):
+        type_string = self.get_ip_type()
+        type_str, subtype_str, scope, iidtype_str, iidsubtype_str = type_string.split("=")
+        return {"type":type_str, "subtype":subtype_str, "scope":scope, "iidtype":iidtype_str, "iidsubtype":iidsubtype_str} 
+
+    def get_mac_address(self):
+        ipstat = self.get_types()
+        if ipstat["iidtype"] != self.iidmacderived:
+            # raise IPv6ParseError("the ipaddress {} is not ieee drived".format(IPint(self.ipv6address.ipv6_address).strFullsize()))
+            return None
+        iid = self.ipv6address.ipv6_address & 0xffffffffffffffff
+        iid ^= 0x0200000000000000
+        iid = ( iid >> 16 ) &0xffffff000000 | (iid & 0xffffff)
+        return "{:0>12X}".format(iid)
+
+if __name__ == "__main__":
+    ipv6 = "fe80::2aa:ff:fe3f:2a1c"
+    mac = "00AA003F2A1C"
+    ipstat = ipstat(ipv6)
+    mac_address = ipstat.get_mac_address()
+    assert mac == mac_address    
