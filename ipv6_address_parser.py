@@ -593,7 +593,9 @@ if __name__ == "__main__":
     mac = "00AA003F2A1C"
     org = "INTEL CORPORATION"
     ipstat = IPstat(ipv6)
+    print(ipstat.get_ip_type())
     mac_address = ipstat.get_mac_address()
-
+    print(mac_address.get_mac())
+    print(mac_address.get_org())
     assert mac == mac_address.get_mac()    
     assert org == mac_address.get_org()

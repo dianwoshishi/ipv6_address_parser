@@ -1,4 +1,5 @@
 
 unittest:
-	python ./test_decode_ipv6_address.py
+	python ./test_ipv6_address_parser.py
+
 

@@ -1,6 +1,6 @@
 import unittest
 
-from decode_ipv6_address import IPstat
+from ipv6_address_parser import IPstat
 from tqdm import tqdm
 
 class TestStringMethods(unittest.TestCase):

@@ -1,6 +1,4 @@
-IPy
-# process
-tqdm
-# mac address
-macaddress
-ouilookup
+IPy==1.1
+macaddress==1.2.0
+ouilookup==0.2.4
+tqdm==4.63.0
