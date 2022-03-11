@@ -1,4 +1,4 @@
-from decode_ipv6_address import IPstat
+from ipv6_address_parser import IPstat
 
 if __name__ == "__main__":
     ipv6 = "2001:1210:105:34:0:606:a8:31"
