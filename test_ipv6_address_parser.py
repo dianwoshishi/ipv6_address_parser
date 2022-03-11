@@ -26,17 +26,22 @@ class TestStringMethods(unittest.TestCase):
 
     #@unittest.skip("skipping, for save time")
     def test_address_type(self):
-        test_data_dir = "test_data"
-        ipv6_set = "{}/{}".format(test_data_dir, "active_ipv6")
-        type_set = "{}/{}".format(test_data_dir, "active_ipv6_addr6")
-        with open(ipv6_set) as f_ip, open(type_set) as f_type:
-            for ip, ip_type in tqdm(zip(f_ip, f_type)):
-                ip = ip.strip("\n")
-                ip_type = ip_type.strip("\n")
-                ipstat = IPstat(ip)
-                type_str = ipstat.get_ip_type()
+        def test_file(ipv6_set, type_set):
+            with open(ipv6_set) as f_ip, open(type_set) as f_type:
+                for ip, ip_type in tqdm(zip(f_ip, f_type)):
+                    ip = ip.strip("\n")
+                    ip_type = ip_type.strip("\n")
+                    ipstat = IPstat(ip)
+                    type_str = ipstat.get_ip_type()
 
-                self.assertEqual(type_str,ip_type) 
+                    self.assertEqual(type_str,ip_type) 
+
+        test_data_dir = "test_data"
+        files = ['active_ipv6']
+        for file in files:
+            ipv6_set = "{}/{}".format(test_data_dir, file)
+            type_set = "{}/{}".format(test_data_dir, "{}_addr6".format(file))
+            test_file(ipv6_set, type_set)
     
     def test_get_mac_address(self):
         test_ipv6 = [
