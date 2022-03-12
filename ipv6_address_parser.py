@@ -7,6 +7,7 @@
 
 from IPy import IPint
 from dataclasses import dataclass
+from collections import namedtuple
 
 from mac_address import MacAddress
 
@@ -69,9 +70,13 @@ class IPv6ParseError(Exception):
     def error_msg(self):
         return self.msg
 
+IPv6Type = namedtuple("IPv6Type", ['type', 'subtype', 'scope', 'iidtype', 'iidsubtype'])                       
 class IPv6Address:
     def __init__(self, ipv6):
-        self.ipv6_address = IPint(ipv6).ip
+        try:
+            self.ipv6_address = IPint(ipv6).ip
+        except:
+            raise IPv6ParseError("can not parse the ip:{}".format(ipv6))
         self.ipv6_type = IPType.ipv6_type["IPV6_UNKNOWN"]
         self.ipv6_subtype = IPType.ipv6_type["IPV6_UNKNOWN"]
         self.ipv6_scope = IPType.ipv6_type["IPV6_UNKNOWN"]
@@ -82,6 +87,9 @@ class IPstat(object):
     def __init__(self, ipv6):
         self.ipv6address = IPv6Address(ipv6)
 
+        # namedtuple, used to store result of parser 
+        # IPv6Type = namedtuple("IPv6Type", ['type', 'subtype', 'scope', 'iidtype', 'iidsubtype'])                       
+        self.stat = None
 
     def get_int64(self, _nth):
         _nth -= 1
@@ -390,7 +398,7 @@ class IPstat(object):
         else:
             self.ipv6address.ipv6_iidtype =IPType.ipv6_type["IID_RANDOM"]
 
-    def get_ipstat(self):
+    def __get_ipstat(self):
         return self.ipv6address
              
     nullstring=""
@@ -442,10 +450,10 @@ class IPstat(object):
     scopeglobal="global";
     scopeunassigned="unassigned";
     scopeunspecified="unspecified";
-    def get_ip_type(self):
+    def __parse_ip_type(self):
         
         self.__parseType()
-        ipstat = self.get_ipstat()
+        ipstat = self.__get_ipstat()
         type_str = self.nullstring
         subtype_str = self.nullstring
         iidtype_str = self.nullstring
@@ -562,40 +570,56 @@ class IPstat(object):
             scope = self.scopeunspecified
         else:
             scope = self.scopeunassigned 
-        
-        type_str = "{}={}={}={}={}".format(type_str,\
+
+        # namedtuple IPv6Type
+        self.stat = IPv6Type._make([type_str,\
                                         subtype_str,\
                                         scope,\
                                         iidtype_str,\
-                                        iidsubtype_str)
-        return type_str
+                                        iidsubtype_str])
+        
 
-    def get_types(self):
-        type_string = self.get_ip_type()
-        type_str, subtype_str, scope, iidtype_str, iidsubtype_str = type_string.split("=")
-        return {"type":type_str, "subtype":subtype_str, "scope":scope, "iidtype":iidtype_str, "iidsubtype":iidsubtype_str} 
+    @property
+    def str_types(self):
+        if self.stat == None:
+            type_string = self.__parse_ip_type()
 
-    def get_mac_address(self):
-        ipstat = self.get_types()
-        if ipstat["iidtype"] != self.iidmacderived:
-            # raise IPv6ParseError("the ipaddress {} is not ieee drived".format(IPint(self.ipv6address.ipv6_address).strFullsize()))
-            return MacAddress("xxxx") # force to return None element
+        return "{}={}={}={}={}".format(self.stat.type,\
+                                        self.stat.subtype,\
+                                        self.stat.scope,\
+                                        self.stat.iidtype,\
+                                        self.stat.iidsubtype)
+    @property
+    def dict_types(self):
+        if self.stat == None:
+            self.__parse_ip_type()
 
+        return self.stat._asdict()
+
+    def __extract_mac_str_from_ip(self):
         iid = self.ipv6address.ipv6_address & 0xffffffffffffffff
         iid ^= 0x0200000000000000
         iid = ( iid >> 16 ) &0xffffff000000 | (iid & 0xffffff)
         mac_str = "{:0>12X}".format(iid)
-        mac_addr = MacAddress(mac_str)
+        return mac_str
+
+    def get_mac_address(self):
+        if self.dict_types["iidtype"] != self.iidmacderived:
+            # raise IPv6ParseError("the ipaddress {} is not ieee drived".format(IPint(self.ipv6address.ipv6_address).strFullsize()))
+            return MacAddress("xxxx") # force to return None element
+
+        mac_addr = MacAddress(self.__extract_mac_str_from_ip())
         return mac_addr
 
 if __name__ == "__main__":
     ipv6 = "fe80::2aa:ff:fe3f:2a1c"
     mac = "00AA003F2A1C"
     org = "INTEL CORPORATION"
+
     ipstat = IPstat(ipv6)
-    print(ipstat.get_ip_type())
     mac_address = ipstat.get_mac_address()
     print(mac_address.get_mac())
     print(mac_address.get_org())
+        
     assert mac == mac_address.get_mac()    
     assert org == mac_address.get_org()

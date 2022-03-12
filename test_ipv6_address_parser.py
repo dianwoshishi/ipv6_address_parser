@@ -32,7 +32,7 @@ class TestStringMethods(unittest.TestCase):
                     ip = ip.strip("\n")
                     ip_type = ip_type.strip("\n")
                     ipstat = IPstat(ip)
-                    type_str = ipstat.get_ip_type()
+                    type_str = ipstat.str_types
 
                     self.assertEqual(type_str,ip_type) 
 
