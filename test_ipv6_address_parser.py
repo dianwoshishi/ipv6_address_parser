@@ -29,12 +29,13 @@ class TestStringMethods(unittest.TestCase):
         def test_file(ipv6_set, type_set):
             with open(ipv6_set) as f_ip, open(type_set) as f_type:
                 for ip, ip_type in tqdm(zip(f_ip, f_type)):
-                    ip = ip.strip("\n")
-                    ip_type = ip_type.strip("\n")
-                    ipstat = IPstat(ip)
-                    type_str = ipstat.str_types
+                    with self.subTest(ip):
+                        ip = ip.strip("\n")
+                        ip_type = ip_type.strip("\n")
+                        ipstat = IPstat(ip)
+                        type_str = ipstat.str_types
 
-                    self.assertEqual(type_str,ip_type) 
+                        self.assertEqual(type_str,ip_type) 
 
         test_data_dir = "test_data"
         files = ['active_ipv6']
@@ -52,10 +53,11 @@ class TestStringMethods(unittest.TestCase):
                         ["fe80::76d4:35ff:fe4e:39c8","74D4354E39C8", "74D435",  "GIGA-BYTE TECHNOLOGY CO.,LTD."],
                     ]
         for ipv6, mac,code, org in tqdm(test_ipv6):
-            ipstat = IPstat(ipv6)
-            mac_address = ipstat.get_mac_address()
-            self.assertEqual( mac , mac_address.get_mac())
-            self.assertEqual( org , mac_address.get_org())
+            with self.subTest(ipv6):
+                ipstat = IPstat(ipv6)
+                mac_address = ipstat.get_mac_address()
+                self.assertEqual( mac , mac_address.get_mac())
+                self.assertEqual( org , mac_address.get_org())
 
 if __name__ == '__main__':
-    unittest.main()
+    unittest.main(verbosity=2)

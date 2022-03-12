@@ -116,9 +116,6 @@ class IPstat(object):
     def IN6_IS_ADDR_UNIQUELOCAL(self):
         return self.get_int32(1) & 0xfe000000 == 0xfc000000
         
-    def IN6_IS_ADDR_6TO4(self):
-        return self.get_int32(1) & 0xffff0000 == 0x20020000
-
     def IN6_IS_ADDR_TEREDO(self):
         return self.get_int32(1)  == 0x20010000
 
